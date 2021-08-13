@@ -58,6 +58,11 @@ const userController = {
       }
 
     //bonus remove users associated thoughts when deleted 
+
+    // post to add a new friend to a users friend list
+
+    // delete to remove a friend from a users friend list
+    
 };
 
 module.exports = userController;
