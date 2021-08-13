@@ -80,3 +80,4 @@ const thoughtController = {
     // delete to pull and remove a reaction by reactions reactionId value
 }
 
+module.exports = thoughtController;
