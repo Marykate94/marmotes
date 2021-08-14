@@ -1,4 +1,4 @@
-const { Thought, User } = require("../models");
+const { User, Thought } = require("../models");
 
 const thoughtController = {
     //get all thoughts
@@ -32,7 +32,7 @@ const thoughtController = {
     // create a new thought - push created thoughts id to the associated users thoughts array field-
     newThought({ params, body }, res) {
         Thought.findOneAndUpdate(
-          { _id: params.userId },
+          { _id: params.id },
           { $push: { thought: _id } },
           { new: true, runValidators: true }
         )
@@ -73,11 +73,11 @@ const thoughtController = {
             res.json(dbThoughtData);
           })
           .catch(err => res.json(err));
-      },
+      }
 
     // post to create a reaction stored in a  single thoughts reactions array field
 
     // delete to pull and remove a reaction by reactions reactionId value
-}
+};
 
 module.exports = thoughtController;
