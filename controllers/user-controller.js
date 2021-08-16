@@ -55,14 +55,47 @@ const userController = {
         User.findOneAndDelete({ _id: params.id })
           .then(dbUserData => res.json(dbUserData))
           .catch(err => res.json(err));
-      }
+      },
 
     //bonus remove users associated thoughts when deleted 
 
-    // post to add a new friend to a users friend list
+    // post to add a new friend to a users friend list by pulling user id of associated friend
+    addFriend({ params }, res) {
+        User.findOneAndUpdate(
+          { _id: params.id },
+          { $push: { friends: params.friendId } },
+          { new: true }
+        )
+          .populate({ path: "friends", select: "-__v" })
+          .select("-__v")
+          .then((dbUserData) => {
+            if (!dbUserData) {
+              res.status(404).json({ message: "NO FRIEND FOUND" });
+              return;
+            }
+            res.json(dbUserData);
+          })
+          .catch((err) => res.json(err));
+      },
 
     // delete to remove a friend from a users friend list
-    
+    deleteFriend({ params }, res) {
+        User.findOneAndUpdate(
+          { _id: params.id },
+          { $pull: { friends: params.friendId } },
+          { new: true }
+        )
+          .populate({ path: "friends", select: "-__v" })
+          .select("-__v")
+          .then((dbUserData) => {
+            if (!dbUserData) {
+              res.status(404).json({ message: "NO FRIEND FOUND" });
+              return;
+            }
+            res.json(dbUserData);
+          })
+          .catch((err) => res.status(400).json(err));
+      },
 };
 
 module.exports = userController;
