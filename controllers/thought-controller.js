@@ -73,11 +73,51 @@ const thoughtController = {
             res.json(dbThoughtData);
           })
           .catch(err => res.json(err));
-      }
+      },
 
-    // post to create a reaction stored in a  single thoughts reactions array field
-
+    // post to create a reaction stored in a  single thoughts reactions array field 
+    addReaction({ params, body }, res) {
+      Thought.findOneAndUpdate(
+        { _id: params.reactionId },
+        { $push: { reactions: body } },
+        { new: true, runValidators: true }
+      )
+        .populate({ path: "reactions", select: "-__v" })
+        .select("-__v")
+        .then(dbThoughtData => {
+          if (!dbThoughtData) {
+            res.status(404).json({ message: 'No thought found with this id!' });
+            return;
+          }
+          res.json(dbThoughtData);
+        })
+        .catch(err => res.json(err));
+    },
     // delete to pull and remove a reaction by reactions reactionId value
+    removeReaction({ params, body }, res) {
+      Thought.findByIdAndDelete({ _id: params.reactionId })
+      .then(deletedReaction => {
+        if (!deletedReaction) {
+          return res.status(404).json({ message: 'No reaction with this id!' });
+        }
+        return Thought.findOneAndUpdate(
+          { _id: params.reactionId },
+          { $pull: { reactions: params.reactionId } },
+          { new: true }
+        );
+      })
+      .populate({ path: "reactions", select: "-__v" })
+      .select("-__v")
+      .then(dbThoughtData => {
+        if (!dbThoughtData) {
+          res.status(404).json({ message: 'No reaction found with this id!' });
+          return;
+        }
+        res.json(dbThoughtData);
+      })
+      .catch(err => res.json(err));
+  },
+
 };
 
 module.exports = thoughtController;
