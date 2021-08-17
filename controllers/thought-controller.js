@@ -31,20 +31,24 @@ const thoughtController = {
 
     // create a new thought - push created thoughts id to the associated users thoughts array field-
     newThought({ params, body }, res) {
-        Thought.findOneAndUpdate(
-          { _id: params.id },
-          { $push: { thought: _id } },
-          { new: true, runValidators: true }
-        )
-          .then(dbThoughtData => {
-            if (!dbThoughtData) {
-              res.status(404).json({ message: 'No thought found with this id!' });
-              return;
-            }
-            res.json(dbThoughtData);
-          })
-          .catch(err => res.json(err));
-      },
+      Thought.create(body)
+        .then(({ _id }) => {
+          return User.findOneAndUpdate(
+            { _id: params.userId },
+            { $push: { thoughts: _id } },
+            { new: true }
+          );
+        })
+        .then(dbThoughtData => {
+          console.log(dbThoughtData);
+          if (!dbThoughtData) {
+            res.status(404).json({ message: 'No thought found with this id!' });
+            return;
+          }
+          res.json(dbThoughtData);
+        })
+        .catch(err => res.json(err));
+    },
     // update a thought by its id
       updateThought({ params, body}, res) {
           Thought.findOneAndUpdate({ _id: params.id }, body, {
